@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Survey Selection{% endblock %}
+
+{% block content %}
+    <h1>Select a Survey</h1>
+
+    <!-- Display Patient Details -->
+    <section>
+        <h2>Patient Information</h2>
+        {% if patient_selected_model %}
+            <p><strong>Patient Number:</strong> {{ patient_selected_model.patient_number }}</p>
+            <p><strong>Patient Registered At:</strong> {{ patient_selected_model.registered_at }}</p>
+        {% else %}
+            <p>No patient information found.</p>
+        {% endif %}
+    </section>
+
+    <!-- Survey Selection Form -->
+    <section>
+        <h2>Select a Survey</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Next</button>
+        </form>
+    </section>
+
+    <!-- List All Surveys -->
+    <section>
+        <h2>TODO: List survey submissions</h2>
+        <ul>
+            {% for survey_submission in previous_survey_submissions_model %}
+                <li>
+                    <p><strong>{{ survey_submission.survey.title }}: </strong>survey_submission.submitted_at</p>
+                </li>
+            {% empty %}
+                <p>No previos survey submissions present for this patient.</p>
+            {% endfor %}
+        </ul>
+    </section>
+{% endblock %}

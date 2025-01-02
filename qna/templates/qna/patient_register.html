@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Register Patient{% endblock %}
+
+{% block content %}
+  <h1>Register patient for a medical survey</h1>
+  
+  <!-- Display the form -->
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Next</button>
+  </form>
+{% endblock %}

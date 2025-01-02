@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Survey Submission{% endblock %}
+
+{% block content %}
+  <h1>Submit Survey</h1>
+
+  <!-- Display Patient Details -->
+  <section>
+      <h2>Patient Information</h2>
+      {% if patient_selected_model %}
+          <p><strong>Patient Number:</strong> {{ patient_selected_model.patient_number }}</p>
+          <p><strong>Patient Registered At:</strong> {{ patient_selected_model.registered_at }}</p>
+      {% else %}
+          <p>No patient information found.</p>
+      {% endif %}
+  </section>
+
+  <!-- Display Survey Details -->
+  <section>
+      <h2>Survey Completed</h2>
+      {% if survey_selected_model %}
+          <p><strong>Survey Name:</strong> {{ survey_selected_model.title }}</p>
+          <p><strong>Survey Description:</strong> {{ survey_selected_model.description }}</p>
+      {% else %}
+          <p>No survey information found.</p>
+      {% endif %}
+  </section>
+  
+{% endblock %}
