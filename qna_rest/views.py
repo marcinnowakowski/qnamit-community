@@ -1,10 +1,11 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from qna.models import Patient
-from .serializers import PatientRegisterSerializer, PatientDetailSerializer
+from qna.models import Answer, Patient, Question, Survey, SurveySubmission
+from .serializers import PatientRegisterSerializer, PatientDetailSerializer, SurveySubmissionSerializer, SurveySummarySerializer, SurveyDetailSerializer, QuestionSerializer
 
 
 class PatientRegisterAPIView(APIView):
@@ -50,3 +51,104 @@ class PatientDetailAPIView(APIView):
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         except Patient.DoesNotExist:
             return Response({"error": "Patient not found."}, status=status.HTTP_404_NOT_FOUND)
+          
+class SurveyListAPIView(APIView):
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response('List of surveys', SurveySummarySerializer(many=True)),
+        },
+        operation_description="Retrieve a list of surveys."
+    )
+    def get(self, request):
+        surveys = Survey.objects.all()
+        response_serializer = SurveySummarySerializer(surveys, many=True)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+class SurveyDetailAPIView(APIView):
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response('List of surveys', SurveySummarySerializer(many=True)),
+        },
+        operation_description="Retrieve a list of surveys."
+    )
+    def get(self, request):
+        surveys = Survey.objects.all()
+        response_serializer = SurveySummarySerializer(surveys, many=True)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+class SurveyDetailAPIView(APIView):
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(
+                'Survey details with questions',
+                SurveyDetailSerializer
+            ),
+            404: openapi.Response('Survey not found'),
+        },
+        operation_description="Retrieve detailed information about a survey, including its questions."
+    )
+    def get(self, request, slug):
+        try:
+            survey = Survey.objects.get(slug=slug, public=True)
+            survey_serializer = SurveyDetailSerializer(survey)
+            
+            # Fetch associated questions
+            questions = survey.questions.filter(public=True)
+            questions_serializer = QuestionSerializer(questions, many=True)
+            
+            return Response(
+                {
+                    "survey": survey_serializer.data,
+                    "questions": questions_serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Survey.DoesNotExist:
+            return Response(
+                {"detail": "Survey not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+class SurveySubmissionAPIView(APIView):
+    @swagger_auto_schema(
+        request_body=SurveySubmissionSerializer,  # Serializer for input data
+        responses={
+            201: openapi.Response('Survey submitted successfully', PatientRegisterSerializer),
+            400: 'Invalid input'
+        },
+        operation_description="Submit a new survey. Accepts JSON data."
+    )
+    def post(self, request):
+        # Validate the input data
+        serializer = SurveySubmissionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Extract validated data
+        patient_id = serializer.validated_data.get('patient_id')
+        survey_id = serializer.validated_data.get('survey_id')
+        answers = serializer.validated_data.get('answers')
+
+        # Fetch patient and survey objects
+        patient = get_object_or_404(Patient, id=patient_id)
+        survey = get_object_or_404(Survey, id=survey_id)
+
+        # Create survey submission
+        survey_submission = SurveySubmission.objects.create(
+            patient=patient,
+            survey=survey
+        )
+
+        # Save answers
+        for answer in answers:
+            question_id = answer.get('question_id')
+            answer_text = answer.get('answer_text')
+
+            question = get_object_or_404(Question, id=question_id)
+            Answer.objects.create(
+                survey_submission=survey_submission,
+                question=question,
+                answer_text=answer_text
+            )
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
