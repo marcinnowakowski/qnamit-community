@@ -1,19 +1,37 @@
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic import TemplateView
 from .models import Answer, Patient, Question, Survey, SurveySubmission
 from .forms import PatientForm, SurveySelectForm, SurveySubmissionForm
 
-# Create view to register a patient for a survey
-class PatientRegisterView(CreateView):
-    model = Patient
-    form_class = PatientForm
+class PatientRegisterView(FormView):
     template_name = 'qna/patient_register.html'
+    form_class = PatientForm
 
-    def get_success_url(self):
-        return reverse_lazy('survey_select', kwargs={'patient_number': self.object.patient_number})
-      
+    def form_valid(self, form):
+        print("8888888888888888888")
+        # Sprawdź, czy istnieje pacjent o tym numerze
+        patient_number = form.cleaned_data.get('patient_number')
+        existing_patient = Patient.objects.filter(patient_number=patient_number).first()
+
+        if existing_patient:
+            # Jeśli pacjent istnieje, przekieruj do SurveySelectView
+            return HttpResponseRedirect(reverse_lazy('survey_select', kwargs={
+                'patient_number': existing_patient.patient_number
+            }))
+
+        # Jeśli pacjent nie istnieje, utwórz nowy obiekt
+        new_patient = Patient.objects.create(
+            patient_number=form.cleaned_data.get('patient_number')
+        )
+
+        # Przekieruj do SurveySelectView dla nowego pacjenta
+        return HttpResponseRedirect(reverse_lazy('survey_select', kwargs={
+            'patient_number': new_patient.patient_number
+        }))
+
 # Create view to select survey
 class SurveySelectView(FormView):
     template_name = 'qna/survey_select.html'
