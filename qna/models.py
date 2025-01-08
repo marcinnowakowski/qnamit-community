@@ -22,7 +22,7 @@ class Question(models.Model):
     return str(self.survey) + ":" + self.title
 
 class Patient(models.Model):
-  patient_number = models.CharField(max_length=50)
+  patient_number = models.CharField(max_length=50, unique=True)
   registered_at = models.DateTimeField('Date submitted',auto_now_add=True)
 
   def __str__(self):

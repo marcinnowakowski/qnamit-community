@@ -1,10 +1,13 @@
 from django import forms
 from .models import Patient, Survey
 
-class PatientForm(forms.ModelForm):
-    class Meta:
-        model = Patient
-        fields = ['patient_number']
+class PatientForm(forms.Form):
+    patient_number = forms.CharField(
+    max_length=50,
+    label="Numer pacjenta",
+    widget=forms.TextInput(attrs={'placeholder': 'Wpisz numer pacjenta'}),
+    required=True,
+    )
         
 class SurveySelectForm(forms.Form):
     survey_selected = forms.ModelChoiceField(
