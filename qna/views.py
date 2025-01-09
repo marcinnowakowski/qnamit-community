@@ -11,23 +11,22 @@ class PatientRegisterView(FormView):
     form_class = PatientForm
 
     def form_valid(self, form):
-        print("8888888888888888888")
-        # Sprawdź, czy istnieje pacjent o tym numerze
+        # Check if patient exists
         patient_number = form.cleaned_data.get('patient_number')
         existing_patient = Patient.objects.filter(patient_number=patient_number).first()
 
         if existing_patient:
-            # Jeśli pacjent istnieje, przekieruj do SurveySelectView
+            # If exist redirect to SurveySelectView
             return HttpResponseRedirect(reverse_lazy('survey_select', kwargs={
                 'patient_number': existing_patient.patient_number
             }))
 
-        # Jeśli pacjent nie istnieje, utwórz nowy obiekt
+        # If patient doesn't exist create a new patient
         new_patient = Patient.objects.create(
             patient_number=form.cleaned_data.get('patient_number')
         )
 
-        # Przekieruj do SurveySelectView dla nowego pacjenta
+        # Redirect to SurveySelectView for just created patient
         return HttpResponseRedirect(reverse_lazy('survey_select', kwargs={
             'patient_number': new_patient.patient_number
         }))
