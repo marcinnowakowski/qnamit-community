@@ -6,10 +6,8 @@ class PatientDetailSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ['id', 'patient_number', 'registered_at']
 
-class PatientRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Patient
-        fields = ['patient_number']
+class PatientRegisterSerializer(serializers.Serializer):
+    patient_number = serializers.CharField()
         
 class SurveySummarySerializer(serializers.ModelSerializer):
     class Meta:
