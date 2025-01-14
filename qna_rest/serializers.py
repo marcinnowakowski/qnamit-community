@@ -8,6 +8,10 @@ class PatientDetailSerializer(serializers.ModelSerializer):
 
 class PatientRegisterSerializer(serializers.Serializer):
     patient_number = serializers.CharField()
+    
+    def create(self, validated_data):
+        # Implement object creation logic
+        return Patient.objects.create(**validated_data)
         
 class SurveySummarySerializer(serializers.ModelSerializer):
     class Meta:
