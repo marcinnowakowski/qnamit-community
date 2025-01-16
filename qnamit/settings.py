@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
+
 
 # Application definition
 
@@ -63,6 +66,11 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
 ]
 
 ROOT_URLCONF = 'qnamit.urls'
