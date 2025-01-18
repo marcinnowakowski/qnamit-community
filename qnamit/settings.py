@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-o9-b_nfh2ctlme$pd26qc$c5#k!)-+lx6x5rb3ym4!63o4+m2e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+  'srv15.mikr.us'
+]
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
@@ -69,6 +71,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    'http://srv15.mikr.us:20320',
     'http://localhost:8080',
     'http://127.0.0.1:8080',
 ]
