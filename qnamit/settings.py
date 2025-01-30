@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-o9-b_nfh2ctlme$pd26qc$c5#k!)-+lx6x5rb3ym4!63o4+m2e
 DEBUG = True
 
 ALLOWED_HOSTS = [
-  'srv15.mikr.us'
+  'localhost',
+  '127.0.0.1',
+  'srv15.mikr.us',
 ]
 
 USE_X_FORWARDED_HOST = True

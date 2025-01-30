@@ -5,7 +5,7 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from qna.models import Answer, Patient, Question, Survey, SurveySubmission
-from .serializers import PatientRegisterSerializer, PatientDetailSerializer, SurveySubmissionSerializer, SurveySummarySerializer, SurveyDetailSerializer, QuestionSerializer
+from .serializers import AnswerSerializer, PatientRegisterSerializer, PatientDetailSerializer, SurveySubmissionSerializer, SurveySummarySerializer, SurveyDetailSerializer, QuestionSerializer
 
 
 class PatientRegisterAPIView(APIView):
@@ -67,18 +67,6 @@ class SurveyListAPIView(APIView):
 class SurveyDetailAPIView(APIView):
     @swagger_auto_schema(
         responses={
-            200: openapi.Response('List of surveys', SurveySummarySerializer(many=True)),
-        },
-        operation_description="Retrieve a list of surveys."
-    )
-    def get(self, request):
-        surveys = Survey.objects.all()
-        response_serializer = SurveySummarySerializer(surveys, many=True)
-        return Response(response_serializer.data, status=status.HTTP_200_OK)
-
-class SurveyDetailAPIView(APIView):
-    @swagger_auto_schema(
-        responses={
             200: openapi.Response(
                 'Survey details with questions',
                 SurveyDetailSerializer
@@ -107,6 +95,58 @@ class SurveyDetailAPIView(APIView):
             return Response(
                 {"detail": "Survey not found"},
                 status=status.HTTP_404_NOT_FOUND
+            )
+            
+class QuestionDetailAPIView(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'survey_submission_id',
+                openapi.IN_PATH,
+                description="Survey submission id",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            ),
+            openapi.Parameter(
+                'question_id',
+                openapi.IN_PATH,
+                description="Question id",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                'Question details with answer',
+                SurveyDetailSerializer
+            ),
+            404: openapi.Response('Question not found'),
+        },
+        operation_description="Retrieve detailed information about a question, including its answer."
+    )
+    def get(self, request, survey_submission_id, question_id):
+        # Fetch survey submission and question
+        survey_submission = get_object_or_404(SurveySubmission, id=survey_submission_id)
+        question = get_object_or_404(Question, id=question_id)
+        question_serializer = QuestionSerializer(question)
+        
+        answer = survey_submission.answers.filter(question_id=question_id).first()
+
+        if(answer == None):
+          return Response(
+                {
+                    "question": question_serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        
+        answer_serializer = AnswerSerializer(answer)
+        return Response(
+                {
+                    "question": question_serializer.data,
+                    "answer": answer_serializer.data
+                },
+                status=status.HTTP_200_OK
             )
             
 class SurveySubmissionAPIView(APIView):

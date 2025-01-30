@@ -37,7 +37,7 @@ class SurveySubmission(models.Model):
     return str(self.submitted_at) + ":" + str(self.patient) + ":" + str(self.survey)
 
 class Answer(models.Model):
-  survey_submission = models.ForeignKey(SurveySubmission, on_delete=models.CASCADE)
+  survey_submission = models.ForeignKey(SurveySubmission, on_delete=models.CASCADE, related_name='answers')
   question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
   answer_text = models.TextField()
 
